@@ -6,7 +6,7 @@
 
 Suppose we have a class:
 
-```
+```java
 public class Foo {
     public void first() { print("first"); }
     public void second() { print("second"); }
