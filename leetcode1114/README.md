@@ -1,6 +1,6 @@
 ## 1114. Print in Order
 
-[The problem in LeetCode](https://leetcode.com/problems/print-in-order/)
+[The problem at LeetCode](https://leetcode.com/problems/print-in-order/)
 
 ### Introduction
 
