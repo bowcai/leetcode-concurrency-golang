@@ -35,7 +35,7 @@ func printNumber(x int) {
 	fmt.Fprint(out, x, " ")
 }
 
-func (f *FizzBuzz) fizz() {
+func (f *FizzBuzz) fizz(printFizz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from fizzRun channel.
@@ -48,7 +48,7 @@ func (f *FizzBuzz) fizz() {
 	}
 }
 
-func (f *FizzBuzz) buzz() {
+func (f *FizzBuzz) buzz(printBuzz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from buzzRun channel.
@@ -61,7 +61,7 @@ func (f *FizzBuzz) buzz() {
 	}
 }
 
-func (f *FizzBuzz) fizzbuzz() {
+func (f *FizzBuzz) fizzbuzz(printFizzBuzz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from fizzbuzzRun channel.
@@ -79,7 +79,7 @@ func (f *FizzBuzz) fizzbuzz() {
 // when they need to print the corresponding strings.
 // It will also notify these goroutines that the loop is finished
 // by closing the channels.
-func (f *FizzBuzz) number() {
+func (f *FizzBuzz) number(printNumber func(int)) {
 	defer f.wg.Done()
 
 	for i := 1; i <= f.n; i++ {
@@ -126,10 +126,10 @@ func run(n int) {
 	// Totally 4 goroutines are triggered.
 	obj.wg.Add(4)
 
-	go obj.fizz()
-	go obj.buzz()
-	go obj.fizzbuzz()
-	go obj.number()
+	go obj.fizz(printFizz)
+	go obj.buzz(printBuzz)
+	go obj.fizzbuzz(printFizzBuzz)
+	go obj.number(printNumber)
 
 	// Wait for all the goroutines to finish.
 	obj.wg.Wait()

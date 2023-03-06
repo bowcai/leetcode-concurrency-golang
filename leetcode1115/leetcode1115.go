@@ -27,7 +27,7 @@ func printBar() {
 	fmt.Fprint(out, "bar")
 }
 
-func (f *FooBar) foo() {
+func (f *FooBar) foo(printFoo func()) {
 	defer f.wg.Done()
 
 	for i := 0; i < f.n; i++ {
@@ -45,7 +45,7 @@ func (f *FooBar) foo() {
 	<-f.barDone
 }
 
-func (f *FooBar) bar() {
+func (f *FooBar) bar(printBar func()) {
 	defer f.wg.Done()
 
 	// Let function foo execute first.
@@ -74,8 +74,8 @@ func run(n int) {
 	// Totally 2 goroutines are triggered
 	f.wg.Add(2)
 
-	go f.foo()
-	go f.bar()
+	go f.foo(printFoo)
+	go f.bar(printBar)
 
 	// Wait for all goroutines to finish.
 	f.wg.Wait()

@@ -30,7 +30,7 @@ func printThird() {
 	fmt.Fprint(out, "third")
 }
 
-func (f *Foo) first() {
+func (f *Foo) first(printFirst func()) {
 	defer f.wg.Done()
 
 	printFirst()
@@ -39,7 +39,7 @@ func (f *Foo) first() {
 	f.firstDone <- struct{}{}
 }
 
-func (f *Foo) second() {
+func (f *Foo) second(printSecond func()) {
 	defer f.wg.Done()
 
 	// Wait for the function "first" to finish.
@@ -51,7 +51,7 @@ func (f *Foo) second() {
 	f.secondDone <- struct{}{}
 }
 
-func (f *Foo) third() {
+func (f *Foo) third(printThird func()) {
 	defer f.wg.Done()
 
 	// Wait for the function "second" to finish.
@@ -75,11 +75,11 @@ func run(order [3]int) {
 		// Start the goroutines with specified order.
 		switch idx {
 		case 1:
-			go f.first()
+			go f.first(printFirst)
 		case 2:
-			go f.second()
+			go f.second(printSecond)
 		case 3:
-			go f.third()
+			go f.third(printThird)
 		}
 
 		// Add a short delay after the start of each goroutine
