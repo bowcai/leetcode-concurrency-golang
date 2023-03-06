@@ -20,20 +20,20 @@ var out io.Writer = os.Stdout
 
 // The functions to handle the printing defined in the problem
 // For simplicity, error is not handled here
-func (f *Foo) printFirst() {
+func printFirst() {
 	fmt.Fprint(out, "first")
 }
-func (f *Foo) printSecond() {
+func printSecond() {
 	fmt.Fprint(out, "second")
 }
-func (f *Foo) printThird() {
+func printThird() {
 	fmt.Fprint(out, "third")
 }
 
 func (f *Foo) first() {
 	defer f.wg.Done()
 
-	f.printFirst()
+	printFirst()
 
 	// Notify that the function "first" is done.
 	f.firstDone <- struct{}{}
@@ -45,7 +45,7 @@ func (f *Foo) second() {
 	// Wait for the function "first" to finish.
 	<-f.firstDone
 
-	f.printSecond()
+	printSecond()
 
 	// Notify that the function "second" is done.
 	f.secondDone <- struct{}{}
@@ -57,7 +57,7 @@ func (f *Foo) third() {
 	// Wait for the function "second" to finish.
 	<-f.secondDone
 
-	f.printThird()
+	printThird()
 }
 
 // run starts the three goroutines, in a specified order.
