@@ -13,3 +13,11 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Hidden files from file system
+.DS_Store
+__MACOSX
+
+# Configuration files of IDEs
+.vscode
+.idea
