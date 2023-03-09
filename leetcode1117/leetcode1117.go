@@ -11,6 +11,7 @@ type H2O struct {
 	wg              *sync.WaitGroup // Wait for all the go routine to finish
 	hydrogenVacancy chan struct{}   // 1 hydrogen need 1 vacancy to release, and create 1 vacancy for oxygen
 	oxygenVacancy   chan struct{}   // 1 oxygen need 2 vacancies to release, and create 2 vacancies for hydrogen
+	oxygenMu        sync.Mutex      // oxygenMu guard the acquiring of 2 oxygenVacancy
 }
 
 // Specify the output of printing.
@@ -19,20 +20,20 @@ var out io.Writer = os.Stdout
 
 // Use a mutex to guard the printing.
 // May be useless if printing is thread-safe.
-var mu sync.Mutex
+var printMu sync.Mutex
 
 // The functions to handle the printing defined in the problem
 // For simplicity, error is not handled here
 func releaseHydrogen() {
-	mu.Lock()
-	defer mu.Unlock()
+	printMu.Lock()
+	defer printMu.Unlock()
 
 	fmt.Fprint(out, "H")
 }
 
 func releaseOxygen() {
-	mu.Lock()
-	defer mu.Unlock()
+	printMu.Lock()
+	defer printMu.Unlock()
 
 	fmt.Fprint(out, "O")
 }
@@ -56,8 +57,11 @@ func (h *H2O) oxygen(releaseOxygen func()) {
 
 	// 1 oxygen need 2 vacancies to release,
 	// which corresponds to the release of 2 hydrogen atoms.
+	// Use a mutex to guard the simultaneously acquiring of 2 vacancies.
+	h.oxygenMu.Lock()
 	h.oxygenVacancy <- struct{}{}
 	h.oxygenVacancy <- struct{}{}
+	h.oxygenMu.Unlock()
 
 	releaseOxygen()
 
@@ -71,6 +75,7 @@ func run(water string) {
 		wg:              new(sync.WaitGroup),
 		hydrogenVacancy: make(chan struct{}, 2),
 		oxygenVacancy:   make(chan struct{}, 2),
+		oxygenMu:        sync.Mutex{},
 	}
 
 	// Create a goroutine for each atom in the input.

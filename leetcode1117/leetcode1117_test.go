@@ -69,6 +69,8 @@ func TestRun(t *testing.T) {
 		4,
 		5,
 		10,
+		15,
+		20,
 	}
 
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
