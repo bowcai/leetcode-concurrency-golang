@@ -152,7 +152,12 @@ func (p *diningPhilosophers) wantsToEat(
 }
 
 // runPhilosopher represents a philosopher that eat and think for n times.
-func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
+func runPhilosopher(
+	philosopher,
+	n int,
+	wantToEatFunc func(int, func(), func(), func(), func(), func()),
+	thinkFunc func(int),
+) {
 	pickLeftForkFunc := func() { pickLeftFork(philosopher) }
 	pickRightForkFunc := func() { pickRightFork(philosopher) }
 	eatFunc := func() { eat(philosopher) }
@@ -160,7 +165,7 @@ func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
 	putRightForkFunc := func() { putRightFork(philosopher) }
 
 	for i := 0; i < n; i++ {
-		p.wantsToEat(
+		wantToEatFunc(
 			philosopher,
 			pickLeftForkFunc,
 			pickRightForkFunc,
@@ -169,7 +174,7 @@ func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
 			putRightForkFunc,
 		)
 
-		think(philosopher)
+		thinkFunc(philosopher)
 	}
 }
 
@@ -185,7 +190,7 @@ func Run(n int) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			obj.runPhilosopher(i, n)
+			runPhilosopher(i, n, obj.wantsToEat, think)
 		}(i)
 	}
 
