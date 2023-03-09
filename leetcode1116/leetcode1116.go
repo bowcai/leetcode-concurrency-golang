@@ -9,10 +9,9 @@ import (
 
 type zeroEvenOdd struct {
 	n           int
-	wg          *sync.WaitGroup // Wait for all the go routine to finish
-	evenChan    chan int        // Channel for function even to get the number to print
-	oddChan     chan int        // Channel for function odd the get the number to print
-	evenOddDone chan struct{}   // Notify zero that even/odd is done
+	evenChan    chan int      // Channel for function even to get the number to print
+	oddChan     chan int      // Channel for function odd the get the number to print
+	evenOddDone chan struct{} // Notify zero that even/odd is done
 }
 
 // Specify the output of printing
@@ -29,8 +28,6 @@ func printNumber(x int) {
 // zero loops over 1-n and print 0,
 // and notifies the other two goroutines to print numbers
 func (z *zeroEvenOdd) zero(printNumber func(int)) {
-	defer z.wg.Done()
-
 	// Loop over 1-n
 	for i := 1; i <= z.n; i++ {
 		// Print 0
@@ -54,8 +51,6 @@ func (z *zeroEvenOdd) zero(printNumber func(int)) {
 }
 
 func (z *zeroEvenOdd) even(printNumber func(int)) {
-	defer z.wg.Done()
-
 	// The block is executed when it gets number from evenChan.
 	// Loop until evenChan is closed.
 	for num := range z.evenChan {
@@ -67,8 +62,6 @@ func (z *zeroEvenOdd) even(printNumber func(int)) {
 }
 
 func (z *zeroEvenOdd) odd(printNumber func(int)) {
-	defer z.wg.Done()
-
 	// The block is executed when it gets number from oddChan.
 	// Loop until oddChan is closed.
 	for num := range z.oddChan {
@@ -81,22 +74,32 @@ func (z *zeroEvenOdd) odd(printNumber func(int)) {
 
 func Run(n int) {
 	obj := zeroEvenOdd{
-		wg:          new(sync.WaitGroup),
 		n:           n,
 		evenChan:    make(chan int),
 		oddChan:     make(chan int),
 		evenOddDone: make(chan struct{}),
 	}
 
-	// Totally 4 goroutines are triggered.
-	obj.wg.Add(3)
+	var wg sync.WaitGroup
 
-	go obj.zero(printNumber)
-	go obj.even(printNumber)
-	go obj.odd(printNumber)
+	// Totally 4 goroutines are triggered.
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		obj.zero(printNumber)
+	}()
+	go func() {
+		defer wg.Done()
+		obj.even(printNumber)
+	}()
+	go func() {
+		defer wg.Done()
+		obj.odd(printNumber)
+	}()
 
 	// Wait for all the goroutines to finish.
-	obj.wg.Wait()
+	wg.Wait()
 }
 
 func main() {

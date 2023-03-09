@@ -9,9 +9,8 @@ import (
 
 type fooBar struct {
 	n       int
-	wg      *sync.WaitGroup // Wait for all the go routine to finish
-	fooDone chan struct{}   // Notify the function foo is done
-	barDone chan struct{}   // Notify the function bar is done
+	fooDone chan struct{} // Notify the function foo is done
+	barDone chan struct{} // Notify the function bar is done
 }
 
 // Specify the output of printing
@@ -31,8 +30,6 @@ func printBar() {
 }
 
 func (f *fooBar) foo(printFoo func()) {
-	defer f.wg.Done()
-
 	for i := 0; i < f.n; i++ {
 		// Wait till bar is done.
 		<-f.barDone
@@ -49,8 +46,6 @@ func (f *fooBar) foo(printFoo func()) {
 }
 
 func (f *fooBar) bar(printBar func()) {
-	defer f.wg.Done()
-
 	// Let function foo execute first.
 	f.barDone <- struct{}{}
 
@@ -69,19 +64,26 @@ func (f *fooBar) bar(printBar func()) {
 func Run(n int) {
 	f := fooBar{
 		n:       n,
-		wg:      new(sync.WaitGroup),
 		fooDone: make(chan struct{}),
 		barDone: make(chan struct{}),
 	}
 
-	// Totally 2 goroutines are triggered
-	f.wg.Add(2)
+	var wg sync.WaitGroup
 
-	go f.foo(printFoo)
-	go f.bar(printBar)
+	// Totally 2 goroutines are triggered
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		f.foo(printFoo)
+	}()
+	go func() {
+		defer wg.Done()
+		f.bar(printBar)
+	}()
 
 	// Wait for all goroutines to finish.
-	f.wg.Wait()
+	wg.Wait()
 }
 
 func main() {

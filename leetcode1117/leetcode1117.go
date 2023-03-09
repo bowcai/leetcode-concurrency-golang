@@ -8,10 +8,9 @@ import (
 )
 
 type h2O struct {
-	wg              *sync.WaitGroup // Wait for all the go routine to finish
-	hydrogenVacancy chan struct{}   // 1 hydrogen need 1 vacancy to release, and create 1 vacancy for oxygen
-	oxygenVacancy   chan struct{}   // 1 oxygen need 2 vacancies to release, and create 2 vacancies for hydrogen
-	oxygenMu        sync.Mutex      // oxygenMu guard the acquiring of 2 oxygenVacancy
+	hydrogenVacancy chan struct{} // 1 hydrogen need 1 vacancy to release, and create 1 vacancy for oxygen
+	oxygenVacancy   chan struct{} // 1 oxygen need 2 vacancies to release, and create 2 vacancies for hydrogen
+	oxygenMu        sync.Mutex    // oxygenMu guard the acquiring of 2 oxygenVacancy
 }
 
 // Specify the output of printing.
@@ -42,8 +41,6 @@ func releaseOxygen() {
 }
 
 func (h *h2O) hydrogen(releaseHydrogen func()) {
-	defer h.wg.Done()
-
 	// 1 hydrogen need 1 vacancy to release,
 	// otherwise it will block until there is vacancy.
 	h.hydrogenVacancy <- struct{}{}
@@ -56,8 +53,6 @@ func (h *h2O) hydrogen(releaseHydrogen func()) {
 }
 
 func (h *h2O) oxygen(releaseOxygen func()) {
-	defer h.wg.Done()
-
 	// 1 oxygen need 2 vacancies to release,
 	// which corresponds to the release of 2 hydrogen atoms.
 	// Use a mutex to guard the simultaneously acquiring of 2 vacancies.
@@ -75,28 +70,35 @@ func (h *h2O) oxygen(releaseOxygen func()) {
 
 func Run(water string) {
 	obj := h2O{
-		wg:              new(sync.WaitGroup),
 		hydrogenVacancy: make(chan struct{}, 2),
 		oxygenVacancy:   make(chan struct{}, 2),
 		oxygenMu:        sync.Mutex{},
 	}
 
+	var wg sync.WaitGroup
+
 	// Create a goroutine for each atom in the input.
 	for _, c := range water {
 		switch c {
 		case 'H':
-			obj.wg.Add(1)
-			go obj.hydrogen(releaseHydrogen)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				obj.hydrogen(releaseHydrogen)
+			}()
 		case 'O':
-			obj.wg.Add(1)
-			go obj.oxygen(releaseOxygen)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				obj.oxygen(releaseOxygen)
+			}()
 		default:
 			panic("Input should only contain 'H' and 'O'")
 		}
 	}
 
 	// Wait for all the goroutines to finish.
-	obj.wg.Wait()
+	wg.Wait()
 }
 
 func main() {

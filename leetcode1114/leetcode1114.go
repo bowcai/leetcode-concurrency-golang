@@ -9,9 +9,8 @@ import (
 )
 
 type foo struct {
-	wg         *sync.WaitGroup // Wait for all the go routine to finish
-	firstDone  chan struct{}   // Notify the function "first" is done
-	secondDone chan struct{}   // Notify the function "second" is done
+	firstDone  chan struct{} // Notify the function "first" is done
+	secondDone chan struct{} // Notify the function "second" is done
 }
 
 // Specify the output of printing
@@ -36,8 +35,6 @@ func printThird() {
 }
 
 func (f *foo) first(printFirst func()) {
-	defer f.wg.Done()
-
 	printFirst()
 
 	// Notify that the function "first" is done.
@@ -45,8 +42,6 @@ func (f *foo) first(printFirst func()) {
 }
 
 func (f *foo) second(printSecond func()) {
-	defer f.wg.Done()
-
 	// Wait for the function "first" to finish.
 	<-f.firstDone
 
@@ -57,8 +52,6 @@ func (f *foo) second(printSecond func()) {
 }
 
 func (f *foo) third(printThird func()) {
-	defer f.wg.Done()
-
 	// Wait for the function "second" to finish.
 	<-f.secondDone
 
@@ -69,22 +62,32 @@ func (f *foo) third(printThird func()) {
 // The order must be a permutation of [1,2,3].
 func Run(order [3]int) {
 	f := foo{
-		wg:         new(sync.WaitGroup),
 		firstDone:  make(chan struct{}),
 		secondDone: make(chan struct{}),
 	}
 
+	var wg sync.WaitGroup
+
 	for _, idx := range order {
-		f.wg.Add(1)
+		wg.Add(1)
 
 		// Start the goroutines with specified order.
 		switch idx {
 		case 1:
-			go f.first(printFirst)
+			go func() {
+				defer wg.Done()
+				f.first(printFirst)
+			}()
 		case 2:
-			go f.second(printSecond)
+			go func() {
+				defer wg.Done()
+				f.second(printSecond)
+			}()
 		case 3:
-			go f.third(printThird)
+			go func() {
+				defer wg.Done()
+				f.third(printThird)
+			}()
 		}
 
 		// Add a short delay after the start of each goroutine
@@ -93,7 +96,7 @@ func Run(order [3]int) {
 	}
 
 	// Wait for all goroutines to finish.
-	f.wg.Wait()
+	wg.Wait()
 }
 
 func main() {

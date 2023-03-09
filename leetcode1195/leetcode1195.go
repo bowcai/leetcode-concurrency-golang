@@ -8,12 +8,11 @@ import (
 )
 
 type fizzBuzz struct {
-	wg             *sync.WaitGroup // Wait for all the goroutines to finish.
-	n              int             // n represents the length of sequence to be printed.
-	fizzRun        chan struct{}   // Notify fizz function to execute.
-	buzzRun        chan struct{}   // Notify buzz function to execute.
-	fizzbuzzRun    chan struct{}   // Notify fizzbuzz function to execute.
-	fizzOrBuzzDone chan struct{}   // Notify number function that fizz/buzz/fizzbuzz is done.
+	n              int           // n represents the length of sequence to be printed.
+	fizzRun        chan struct{} // Notify fizz function to execute.
+	buzzRun        chan struct{} // Notify buzz function to execute.
+	fizzbuzzRun    chan struct{} // Notify fizzbuzz function to execute.
+	fizzOrBuzzDone chan struct{} // Notify number function that fizz/buzz/fizzbuzz is done.
 }
 
 // Specify the output of printing.
@@ -43,8 +42,6 @@ func printNumber(x int) {
 }
 
 func (f *fizzBuzz) fizz(printFizz func()) {
-	defer f.wg.Done()
-
 	// The block is executed when it can get message from fizzRun channel.
 	// Loop until fizzRun is closed.
 	for range f.fizzRun {
@@ -56,8 +53,6 @@ func (f *fizzBuzz) fizz(printFizz func()) {
 }
 
 func (f *fizzBuzz) buzz(printBuzz func()) {
-	defer f.wg.Done()
-
 	// The block is executed when it can get message from buzzRun channel.
 	// Loop until buzzRun is closed.
 	for range f.buzzRun {
@@ -69,8 +64,6 @@ func (f *fizzBuzz) buzz(printBuzz func()) {
 }
 
 func (f *fizzBuzz) fizzbuzz(printFizzBuzz func()) {
-	defer f.wg.Done()
-
 	// The block is executed when it can get message from fizzbuzzRun channel.
 	// Loop until fizzbuzzRun is closed.
 	for range f.fizzbuzzRun {
@@ -87,8 +80,6 @@ func (f *fizzBuzz) fizzbuzz(printFizzBuzz func()) {
 // It will also notify these goroutines that the loop is finished
 // by closing the channels.
 func (f *fizzBuzz) number(printNumber func(int)) {
-	defer f.wg.Done()
-
 	for i := 1; i <= f.n; i++ {
 		if i%3 == 0 {
 			if i%5 == 0 { // i is divisible by 3 and 5.
@@ -122,7 +113,6 @@ func (f *fizzBuzz) number(printNumber func(int)) {
 
 func Run(n int) {
 	obj := fizzBuzz{
-		wg:             new(sync.WaitGroup),
 		n:              n,
 		fizzRun:        make(chan struct{}),
 		buzzRun:        make(chan struct{}),
@@ -130,16 +120,30 @@ func Run(n int) {
 		fizzOrBuzzDone: make(chan struct{}),
 	}
 
-	// Totally 4 goroutines are triggered.
-	obj.wg.Add(4)
+	var wg sync.WaitGroup
 
-	go obj.fizz(printFizz)
-	go obj.buzz(printBuzz)
-	go obj.fizzbuzz(printFizzBuzz)
-	go obj.number(printNumber)
+	// Totally 4 goroutines are triggered.
+	wg.Add(4)
+
+	go func() {
+		defer wg.Done()
+		obj.fizz(printFizz)
+	}()
+	go func() {
+		defer wg.Done()
+		obj.buzz(printBuzz)
+	}()
+	go func() {
+		defer wg.Done()
+		obj.fizzbuzz(printFizzBuzz)
+	}()
+	go func() {
+		defer wg.Done()
+		obj.number(printNumber)
+	}()
 
 	// Wait for all the goroutines to finish.
-	obj.wg.Wait()
+	wg.Wait()
 }
 
 func main() {

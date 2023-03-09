@@ -105,7 +105,6 @@ func think(philosopher int) {
 }
 
 type diningPhilosophers struct {
-	wg      *sync.WaitGroup // Wait for all the goroutines to finish.
 	forksMu [numPhilosopher]sync.Mutex
 }
 
@@ -154,8 +153,6 @@ func (p *diningPhilosophers) wantsToEat(
 
 // runPhilosopher represents a philosopher that eat and think for n times.
 func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
-	defer p.wg.Done()
-
 	pickLeftForkFunc := func() { pickLeftFork(philosopher) }
 	pickRightForkFunc := func() { pickRightFork(philosopher) }
 	eatFunc := func() { eat(philosopher) }
@@ -179,18 +176,21 @@ func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
 // Run starts the whole program.
 // n is the number of times each philosopher need to eat.
 func Run(n int) {
-	obj := diningPhilosophers{
-		wg: new(sync.WaitGroup),
-	}
+	obj := diningPhilosophers{}
+
+	var wg sync.WaitGroup
 
 	// Start the goroutine of each philosopher.
 	for i := 0; i < numPhilosopher; i++ {
-		obj.wg.Add(1)
-		go obj.runPhilosopher(i, n)
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			obj.runPhilosopher(i, n)
+		}(i)
 	}
 
 	// Wait for all the goroutines to finish.
-	obj.wg.Wait()
+	wg.Wait()
 }
 
 func main() {
