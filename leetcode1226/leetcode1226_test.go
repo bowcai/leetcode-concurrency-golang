@@ -18,6 +18,6 @@ var test = []int{
 // TestRun only test whether the program has deadlock,for simplicity
 func TestRun(t *testing.T) {
 	for _, n := range test {
-		run(n)
+		Run(n)
 	}
 }

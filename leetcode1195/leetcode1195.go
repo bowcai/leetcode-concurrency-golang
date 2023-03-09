@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type FizzBuzz struct {
+type fizzBuzz struct {
 	wg             *sync.WaitGroup // Wait for all the goroutines to finish.
 	n              int             // n represents the length of sequence to be printed.
 	fizzRun        chan struct{}   // Notify fizz function to execute.
@@ -42,7 +42,7 @@ func printNumber(x int) {
 	}
 }
 
-func (f *FizzBuzz) fizz(printFizz func()) {
+func (f *fizzBuzz) fizz(printFizz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from fizzRun channel.
@@ -55,7 +55,7 @@ func (f *FizzBuzz) fizz(printFizz func()) {
 	}
 }
 
-func (f *FizzBuzz) buzz(printBuzz func()) {
+func (f *fizzBuzz) buzz(printBuzz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from buzzRun channel.
@@ -68,7 +68,7 @@ func (f *FizzBuzz) buzz(printBuzz func()) {
 	}
 }
 
-func (f *FizzBuzz) fizzbuzz(printFizzBuzz func()) {
+func (f *fizzBuzz) fizzbuzz(printFizzBuzz func()) {
 	defer f.wg.Done()
 
 	// The block is executed when it can get message from fizzbuzzRun channel.
@@ -86,7 +86,7 @@ func (f *FizzBuzz) fizzbuzz(printFizzBuzz func()) {
 // when they need to print the corresponding strings.
 // It will also notify these goroutines that the loop is finished
 // by closing the channels.
-func (f *FizzBuzz) number(printNumber func(int)) {
+func (f *fizzBuzz) number(printNumber func(int)) {
 	defer f.wg.Done()
 
 	for i := 1; i <= f.n; i++ {
@@ -120,8 +120,8 @@ func (f *FizzBuzz) number(printNumber func(int)) {
 	close(f.fizzbuzzRun)
 }
 
-func run(n int) {
-	obj := FizzBuzz{
+func Run(n int) {
+	obj := fizzBuzz{
 		wg:             new(sync.WaitGroup),
 		n:              n,
 		fizzRun:        make(chan struct{}),
@@ -143,5 +143,5 @@ func run(n int) {
 }
 
 func main() {
-	run(15)
+	Run(15)
 }

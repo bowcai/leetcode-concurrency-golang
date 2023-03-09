@@ -80,7 +80,7 @@ func TestRun(t *testing.T) {
 		out = new(bytes.Buffer)
 
 		input := generateInput(n, rng)
-		run(input)
+		Run(input)
 
 		got := out.(*bytes.Buffer).String()
 		valid := isValidResult(got, n)

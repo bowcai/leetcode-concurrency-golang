@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type H2O struct {
+type h2O struct {
 	wg              *sync.WaitGroup // Wait for all the go routine to finish
 	hydrogenVacancy chan struct{}   // 1 hydrogen need 1 vacancy to release, and create 1 vacancy for oxygen
 	oxygenVacancy   chan struct{}   // 1 oxygen need 2 vacancies to release, and create 2 vacancies for hydrogen
@@ -41,7 +41,7 @@ func releaseOxygen() {
 	}
 }
 
-func (h *H2O) hydrogen(releaseHydrogen func()) {
+func (h *h2O) hydrogen(releaseHydrogen func()) {
 	defer h.wg.Done()
 
 	// 1 hydrogen need 1 vacancy to release,
@@ -55,7 +55,7 @@ func (h *H2O) hydrogen(releaseHydrogen func()) {
 	<-h.oxygenVacancy
 }
 
-func (h *H2O) oxygen(releaseOxygen func()) {
+func (h *h2O) oxygen(releaseOxygen func()) {
 	defer h.wg.Done()
 
 	// 1 oxygen need 2 vacancies to release,
@@ -73,8 +73,8 @@ func (h *H2O) oxygen(releaseOxygen func()) {
 	<-h.hydrogenVacancy
 }
 
-func run(water string) {
-	obj := H2O{
+func Run(water string) {
+	obj := h2O{
 		wg:              new(sync.WaitGroup),
 		hydrogenVacancy: make(chan struct{}, 2),
 		oxygenVacancy:   make(chan struct{}, 2),
@@ -100,5 +100,5 @@ func run(water string) {
 }
 
 func main() {
-	run("OOHHHH")
+	Run("OOHHHH")
 }

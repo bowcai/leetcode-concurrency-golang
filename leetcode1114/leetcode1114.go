@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Foo struct {
+type foo struct {
 	wg         *sync.WaitGroup // Wait for all the go routine to finish
 	firstDone  chan struct{}   // Notify the function "first" is done
 	secondDone chan struct{}   // Notify the function "second" is done
@@ -35,7 +35,7 @@ func printThird() {
 	}
 }
 
-func (f *Foo) first(printFirst func()) {
+func (f *foo) first(printFirst func()) {
 	defer f.wg.Done()
 
 	printFirst()
@@ -44,7 +44,7 @@ func (f *Foo) first(printFirst func()) {
 	f.firstDone <- struct{}{}
 }
 
-func (f *Foo) second(printSecond func()) {
+func (f *foo) second(printSecond func()) {
 	defer f.wg.Done()
 
 	// Wait for the function "first" to finish.
@@ -56,7 +56,7 @@ func (f *Foo) second(printSecond func()) {
 	f.secondDone <- struct{}{}
 }
 
-func (f *Foo) third(printThird func()) {
+func (f *foo) third(printThird func()) {
 	defer f.wg.Done()
 
 	// Wait for the function "second" to finish.
@@ -65,10 +65,10 @@ func (f *Foo) third(printThird func()) {
 	printThird()
 }
 
-// run starts the three goroutines, in a specified order.
+// Run starts the three goroutines, in a specified order.
 // The order must be a permutation of [1,2,3].
-func run(order [3]int) {
-	f := Foo{
+func Run(order [3]int) {
+	f := foo{
 		wg:         new(sync.WaitGroup),
 		firstDone:  make(chan struct{}),
 		secondDone: make(chan struct{}),
@@ -97,5 +97,5 @@ func run(order [3]int) {
 }
 
 func main() {
-	run([3]int{1, 2, 3})
+	Run([3]int{1, 2, 3})
 }

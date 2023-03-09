@@ -23,7 +23,7 @@ func TestRun(t *testing.T) {
 		// Modify the output from stdout to a new buffer
 		out = new(bytes.Buffer)
 
-		run(input)
+		Run(input)
 
 		got := out.(*bytes.Buffer).String()
 		want := strings.Repeat("foobar", input)

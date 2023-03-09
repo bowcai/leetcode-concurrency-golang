@@ -57,7 +57,7 @@ func TestRun(t *testing.T) {
 		// Modify the output from stdout to a new buffer
 		out = new(bytes.Buffer)
 
-		run(c.input)
+		Run(c.input)
 		got := out.(*bytes.Buffer).String()
 
 		if got != c.want {

@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type ZeroEvenOdd struct {
+type zeroEvenOdd struct {
 	n           int
 	wg          *sync.WaitGroup // Wait for all the go routine to finish
 	evenChan    chan int        // Channel for function even to get the number to print
@@ -28,7 +28,7 @@ func printNumber(x int) {
 
 // zero loops over 1-n and print 0,
 // and notifies the other two goroutines to print numbers
-func (z *ZeroEvenOdd) zero(printNumber func(int)) {
+func (z *zeroEvenOdd) zero(printNumber func(int)) {
 	defer z.wg.Done()
 
 	// Loop over 1-n
@@ -53,7 +53,7 @@ func (z *ZeroEvenOdd) zero(printNumber func(int)) {
 	close(z.oddChan)
 }
 
-func (z *ZeroEvenOdd) even(printNumber func(int)) {
+func (z *zeroEvenOdd) even(printNumber func(int)) {
 	defer z.wg.Done()
 
 	// The block is executed when it gets number from evenChan.
@@ -66,7 +66,7 @@ func (z *ZeroEvenOdd) even(printNumber func(int)) {
 	}
 }
 
-func (z *ZeroEvenOdd) odd(printNumber func(int)) {
+func (z *zeroEvenOdd) odd(printNumber func(int)) {
 	defer z.wg.Done()
 
 	// The block is executed when it gets number from oddChan.
@@ -79,8 +79,8 @@ func (z *ZeroEvenOdd) odd(printNumber func(int)) {
 	}
 }
 
-func run(n int) {
-	obj := ZeroEvenOdd{
+func Run(n int) {
+	obj := zeroEvenOdd{
 		wg:          new(sync.WaitGroup),
 		n:           n,
 		evenChan:    make(chan int),
@@ -100,5 +100,5 @@ func run(n int) {
 }
 
 func main() {
-	run(9)
+	Run(9)
 }

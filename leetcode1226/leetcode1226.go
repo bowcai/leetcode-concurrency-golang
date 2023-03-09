@@ -104,14 +104,14 @@ func think(philosopher int) {
 	time.Sleep(thinkTime)
 }
 
-type DiningPhilosophers struct {
+type diningPhilosophers struct {
 	wg      *sync.WaitGroup // Wait for all the goroutines to finish.
 	forksMu [numPhilosopher]sync.Mutex
 }
 
 // This implementation lets the philosopher pick the fork in a lowest-first order.
 // It does not restrict the number of eating philosophers.
-func (p *DiningPhilosophers) wantsToEat(
+func (p *diningPhilosophers) wantsToEat(
 	philosopher int,
 	pickLeftFork func(),
 	pickRightFork func(),
@@ -153,7 +153,7 @@ func (p *DiningPhilosophers) wantsToEat(
 }
 
 // runPhilosopher represents a philosopher that eat and think for n times.
-func (p *DiningPhilosophers) runPhilosopher(philosopher, n int) {
+func (p *diningPhilosophers) runPhilosopher(philosopher, n int) {
 	defer p.wg.Done()
 
 	pickLeftForkFunc := func() { pickLeftFork(philosopher) }
@@ -176,10 +176,10 @@ func (p *DiningPhilosophers) runPhilosopher(philosopher, n int) {
 	}
 }
 
-// run starts the whole program.
+// Run starts the whole program.
 // n is the number of times each philosopher need to eat.
-func run(n int) {
-	obj := DiningPhilosophers{
+func Run(n int) {
+	obj := diningPhilosophers{
 		wg: new(sync.WaitGroup),
 	}
 
@@ -194,5 +194,5 @@ func run(n int) {
 }
 
 func main() {
-	run(2)
+	Run(2)
 }

@@ -22,7 +22,7 @@ func TestRun(t *testing.T) {
 		out = new(bytes.Buffer)
 
 		// Run the code with different order
-		run(input)
+		Run(input)
 
 		got := out.(*bytes.Buffer).String()
 		if got != want {
