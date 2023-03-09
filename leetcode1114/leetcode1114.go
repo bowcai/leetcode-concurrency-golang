@@ -19,15 +19,20 @@ type Foo struct {
 var out io.Writer = os.Stdout
 
 // The functions to handle the printing defined in the problem
-// For simplicity, error is not handled here
 func printFirst() {
-	fmt.Fprint(out, "first")
+	if _, err := fmt.Fprint(out, "first"); err != nil {
+		panic(err)
+	}
 }
 func printSecond() {
-	fmt.Fprint(out, "second")
+	if _, err := fmt.Fprint(out, "second"); err != nil {
+		panic(err)
+	}
 }
 func printThird() {
-	fmt.Fprint(out, "third")
+	if _, err := fmt.Fprint(out, "third"); err != nil {
+		panic(err)
+	}
 }
 
 func (f *Foo) first(printFirst func()) {

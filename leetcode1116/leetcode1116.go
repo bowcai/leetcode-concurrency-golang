@@ -20,9 +20,10 @@ type ZeroEvenOdd struct {
 var out io.Writer = os.Stdout
 
 // The functions to handle the printing defined in the problem
-// For simplicity, error is not handled here
 func printNumber(x int) {
-	fmt.Fprint(out, x)
+	if _, err := fmt.Fprint(out, x); err != nil {
+		panic(err)
+	}
 }
 
 // zero loops over 1-n and print 0,

@@ -23,19 +23,22 @@ var out io.Writer = os.Stdout
 var printMu sync.Mutex
 
 // The functions to handle the printing defined in the problem
-// For simplicity, error is not handled here
 func releaseHydrogen() {
 	printMu.Lock()
 	defer printMu.Unlock()
 
-	fmt.Fprint(out, "H")
+	if _, err := fmt.Fprint(out, "H"); err != nil {
+		panic(err)
+	}
 }
 
 func releaseOxygen() {
 	printMu.Lock()
 	defer printMu.Unlock()
 
-	fmt.Fprint(out, "O")
+	if _, err := fmt.Fprint(out, "O"); err != nil {
+		panic(err)
+	}
 }
 
 func (h *H2O) hydrogen(releaseHydrogen func()) {

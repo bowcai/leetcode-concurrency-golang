@@ -21,18 +21,25 @@ type FizzBuzz struct {
 var out io.Writer = os.Stdout
 
 // The functions to handle the printing defined in the problem.
-// For simplicity, error is not handled here.
 func printFizz() {
-	fmt.Fprint(out, "fizz ")
+	if _, err := fmt.Fprint(out, "fizz "); err != nil {
+		panic(err)
+	}
 }
 func printBuzz() {
-	fmt.Fprint(out, "buzz ")
+	if _, err := fmt.Fprint(out, "buzz "); err != nil {
+		panic(err)
+	}
 }
 func printFizzBuzz() {
-	fmt.Fprint(out, "fizzbuzz ")
+	if _, err := fmt.Fprint(out, "fizzbuzz "); err != nil {
+		panic(err)
+	}
 }
 func printNumber(x int) {
-	fmt.Fprint(out, x, " ")
+	if _, err := fmt.Fprint(out, x, " "); err != nil {
+		panic(err)
+	}
 }
 
 func (f *FizzBuzz) fizz(printFizz func()) {

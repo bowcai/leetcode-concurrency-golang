@@ -19,12 +19,15 @@ type FooBar struct {
 var out io.Writer = os.Stdout
 
 // The functions to handle the printing defined in the problem
-// For simplicity, error is not handled here
 func printFoo() {
-	fmt.Fprint(out, "foo")
+	if _, err := fmt.Fprint(out, "foo"); err != nil {
+		panic(err)
+	}
 }
 func printBar() {
-	fmt.Fprint(out, "bar")
+	if _, err := fmt.Fprint(out, "bar"); err != nil {
+		panic(err)
+	}
 }
 
 func (f *FooBar) foo(printFoo func()) {
