@@ -21,3 +21,10 @@ func TestRun(t *testing.T) {
 		Run(n)
 	}
 }
+
+// Test for the second implementation
+func TestRunImpl2(t *testing.T) {
+	for _, n := range test {
+		RunImpl2(n)
+	}
+}
