@@ -23,17 +23,21 @@ func (p *diningPhilosophersImpl4) wantsToEat(
 	leftForkId := philosopher
 	rightForkId := (philosopher + 1) % numPhilosopher
 
-	// Check if the two forks are both available.
-	// If not, blocked and wait for any other philosophers to put the forks.
-	p.forkArrayMu.Lock()
-	for p.forksTaken[leftForkId] || p.forksTaken[rightForkId] {
-		p.forkArrayCond.Wait()
-	}
-
-	// Release the lock after setting status of both forks,
-	// so that other philosopher can check the status.
+	// This anonymous function specifies the scope of holding the forkArrayMu.
+	// The mutex is unlocked at the end of the function by defer statement.
 	func() {
+		// Only one philosopher can check the status of folk at a time.
+		p.forkArrayMu.Lock()
+
+		// Release the lock after setting status of both forks,
+		// so that other philosopher can check the status.
 		defer p.forkArrayMu.Unlock()
+
+		// Check if the two forks are both available.
+		// If not, blocked and wait for any other philosophers to put the forks.
+		for p.forksTaken[leftForkId] || p.forksTaken[rightForkId] {
+			p.forkArrayCond.Wait()
+		}
 
 		// Pick the forks and set the status.
 		p.forksTaken[leftForkId] = true
