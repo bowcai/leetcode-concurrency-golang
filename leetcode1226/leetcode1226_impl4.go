@@ -30,14 +30,17 @@ func (p *diningPhilosophersImpl4) wantsToEat(
 		p.forkArrayCond.Wait()
 	}
 
-	// Pick the forks and set the status.
-	p.forksTaken[leftForkId] = true
-	pickLeftFork()
-	p.forksTaken[rightForkId] = true
-	pickRightFork()
+	// Release the lock after setting status of both forks,
+	// so that other philosopher can check the status.
+	func() {
+		defer p.forkArrayMu.Unlock()
 
-	// Unlock the mutex so that other philosopher can check the status.
-	p.forkArrayMu.Unlock()
+		// Pick the forks and set the status.
+		p.forksTaken[leftForkId] = true
+		pickLeftFork()
+		p.forksTaken[rightForkId] = true
+		pickRightFork()
+	}()
 
 	// Have both forks, start to eat.
 	eat()
