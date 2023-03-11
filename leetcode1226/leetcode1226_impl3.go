@@ -8,7 +8,7 @@ type diningPhilosophersImpl3 struct {
 	forksMu [numPhilosopher]sync.Mutex
 }
 
-// sLock locks multiple mutexes simultaneously, resembling std::lock in C++.
+// simulLock locks multiple mutexes simultaneously, resembling std::lock in C++.
 // If any of the mutexes cannot be locked, the function get blocked.
 // The function does not hold any locked mutex until successfully locking all the mutexes.
 func simulLock(mutexes ...*sync.Mutex) {
