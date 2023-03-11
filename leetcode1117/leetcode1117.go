@@ -56,10 +56,13 @@ func (h *h2O) oxygen(releaseOxygen func()) {
 	// 1 oxygen need 2 vacancies to release,
 	// which corresponds to the release of 2 hydrogen atoms.
 	// Use a mutex to guard the simultaneously acquiring of 2 vacancies.
-	h.oxygenMu.Lock()
-	h.oxygenVacancy <- struct{}{}
-	h.oxygenVacancy <- struct{}{}
-	h.oxygenMu.Unlock()
+	func() {
+		h.oxygenMu.Lock()
+		defer h.oxygenMu.Unlock()
+
+		h.oxygenVacancy <- struct{}{}
+		h.oxygenVacancy <- struct{}{}
+	}()
 
 	releaseOxygen()
 
