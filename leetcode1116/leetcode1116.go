@@ -82,7 +82,7 @@ func Run(n int) {
 
 	var wg sync.WaitGroup
 
-	// Totally 4 goroutines are triggered.
+	// Totally 3 goroutines are triggered.
 	wg.Add(3)
 
 	go func() {
